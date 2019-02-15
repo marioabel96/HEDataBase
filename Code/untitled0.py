@@ -15,6 +15,7 @@ import numpy as np
 ftp = FTP('216.70.82.104')
 ftp.login(user='GDL2536', passwd = 'gdl2536')
 print('login success :)')
+#%%
 print(ftp.pwd())
 
 ftp.cwd('catalogo_xml')
@@ -24,21 +25,24 @@ download = 'productos.xml'
 
 
 ftp.retrbinary('RETR ' + download, open(download, 'wb').write)
-print('archivo descargado')
+print('inventario descargado')
 ftp.quit()
 print('goodbye FTP')
-#%% Transformar XML a XLSX https://stackoverflow.com/questions/43007874/how-to-import-an-xml-file-into-an-excel-xls-file-template-using-python
+
+#%% Transformar XML a DataFrame
 
 def getvalueofnode(node):
     """ return node text or None """
     return node.text if node is not None else None
 
 parsed_xml = et.parse("productos.xml")
-dfcols = ['name','clave']
+dfcols = ['clave','sku']
 df_xml = pd.DataFrame(columns=dfcols)
  
 for node in parsed_xml.getroot():
     name = node.attrib.get('no_parte')
     clave = node.find('clave')
+    sku = node.find('no_parte')
  
-    df_xml = df_xml.append(pd.Series([name, getvalueofnode(clave)], index=dfcols),ignore_index=True)
+    df_xml = df_xml.append(pd.Series([getvalueofnode(clave),getvalueofnode(sku)], index=dfcols),ignore_index=True)
+print('XML 2 DataFrame ready')
